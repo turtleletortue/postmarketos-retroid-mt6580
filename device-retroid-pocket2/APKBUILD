@@ -1,0 +1,22 @@
+# Reference: <https://postmarketos.org/devicepkg>
+pkgname=device-retroid-pocket2
+pkgdesc="Retroid Pocket 2"
+pkgver=0.1
+pkgrel=0
+url="https://postmarketos.org"
+license="MIT"
+arch="armhf"
+options="!check !archcheck"
+depends="postmarketos-base linux-retroid-pocket2 mkbootimg mesa-dri-gallium"
+makedepends="devicepkg-dev"
+source="deviceinfo"
+
+build() {
+	devicepkg_build $startdir $pkgname
+}
+
+package() {
+	devicepkg_package $startdir $pkgname
+}
+
+sha512sums="12df65f1523555a8d978580cc1c30b2ef9c70d7173b87f736450cde042c7463a3bab82b8b47ba91b3865e7550a678e3d164ed1a2cd41b7ab7731d674d5e04685  deviceinfo"

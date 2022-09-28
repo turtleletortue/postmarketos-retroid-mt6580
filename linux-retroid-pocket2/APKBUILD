@@ -1,0 +1,53 @@
+# Reference: <https://postmarketos.org/vendorkernel>
+# Kernel config based on: arch/arm/configs/gbx2000v1_defconfig
+
+pkgname=linux-retroid-pocket2
+pkgver=3.18.79
+pkgrel=0
+pkgdesc="Retroid Pocket 2 kernel fork"
+arch="armhf"
+_carch="arm"
+_flavor="retroid-pocket2"
+url="https://kernel.org"
+license="GPL-2.0-only"
+options="!strip !check !tracedeps pmb:cross-native"
+makedepends="bash bc bison devicepkg-dev flex openssl-dev perl"
+
+# Source
+_repository="android_kernel_retroid_pocket2-pm"
+_commit="73168801964ace36de232df9b935e990a46a1d9f"
+_config="config-$_flavor.$arch"
+source="
+	$pkgname-$_commit.tar.gz::https://github.com/turtleletortue/$_repository/archive/$_commit.tar.gz
+	$_config
+    02_drvgen_mk.patch
+    03_vdsomunge_upstream.patch
+	gcc8-fix-put-user.patch
+	gcc10-extern_YYLOC_global_declaration.patch
+    python2-to-python3-compatibility.patch
+"
+builddir="$srcdir/$_repository-$_commit"
+_outdir="out"
+
+prepare() {
+	default_prepare
+	. downstreamkernel_prepare
+}
+
+build() {
+	unset LDFLAGS
+	make O="$_outdir" ARCH="$_carch" CC="${CC:-gcc}" \
+		KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS"
+}
+
+package() {
+	downstreamkernel_package "$builddir" "$pkgdir" "$_carch" "$_flavor" "$_outdir"
+}
+
+sha512sums="ed063dd3a0f8ec285637f61e1c5e769db32d2095191f4571878663c3c2e0299d79417bd222f259445479f8c3b65cefd85266d0673d4504af380c28a47522c418  linux-retroid-pocket2-73168801964ace36de232df9b935e990a46a1d9f.tar.gz
+14f51d07b783b273c2f8eb588eda9ee8dd8f97b585f2b863515184f0998aec6e8f54948d3f0f5b724dc7ca323bec0bfd34085e6bce949c99ef0b316ab17d3531  config-retroid-pocket2.armhf
+aaf7e208f307db3126202f3f3410d4f8a74b450ef719717a064c817258cb428a150a798494f57e43f9e1f747ad83527e565f8d81c3c746d1fb0b4e42e6e30d50  02_drvgen_mk.patch
+19a6c3445bfd8057e4fabe1709f3d2344f3a99fef49b44636c07a18ba8791fab1bcff77f93aadff887946ae6f83c9d86e1c28f9b88d03c6ba156704d430b4470  03_vdsomunge_upstream.patch
+197d40a214ada87fcb2dfc0ae4911704b9a93354b75179cd6b4aadbb627a37ec262cf516921c84a8b1806809b70a7b440cdc8310a4a55fca5d2c0baa988e3967  gcc8-fix-put-user.patch
+2b48f1bf0e3f70703d2cdafc47d5e615cc7c56c70bec56b2e3297d3fa4a7a1321d649a8679614553dde8fe52ff1051dae38d5990e3744c9ca986d92187dcdbeb  gcc10-extern_YYLOC_global_declaration.patch
+7c100d155b5915028133dd7b89e77684c400cfd7e53fb65d089ed22a94345ee7cdf9da13192ef2c0e530953da10f89d42e135bdc66fd3356b66a8a306a196cf5  python2-to-python3-compatibility.patch"
